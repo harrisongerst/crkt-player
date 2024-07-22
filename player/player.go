@@ -1,6 +1,7 @@
 package player
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -30,5 +31,15 @@ func PlayRain() {
 	speaker.Play(beep.Seq(streamer, beep.Callback(func(){
 		done <- true
 	})))
-	 <-done
+
+	for {
+		select {
+		case <-done:
+			return
+		case <-time.After(time.Second):
+			speaker.Lock()
+			fmt.Println(format.SampleRate.D(streamer.Position()))
+			speaker.Unlock()
+		}
+	}
 }
