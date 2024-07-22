@@ -11,8 +11,8 @@ import (
 	"github.com/gopxl/beep/speaker"
 )
 
-func PlayRain() {
-	f, err := os.Open("sounds/rain.mp3")
+func PlayFile(filename string) {
+	f, err := os.Open("sounds/" + filename)
 	if err != nil {
 		log.Fatal(err)
 	}

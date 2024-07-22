@@ -21,7 +21,7 @@ var play = &cobra.Command{
 	Short: "this plays the music",
 	Long: "heres the long description of it playing music",
 	Run: func(cmd *cobra.Command, args []string) {
-		player.PlayRain()
+		player.PlayFile(args[0])
 	},
 }
 
