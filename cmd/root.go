@@ -3,8 +3,10 @@ import (
 	"fmt"
 	"os"
 
-	"hgerst/crkt/player"
+	"hgerst/crkt/client"
+	"hgerst/crkt/views"
 	"github.com/spf13/cobra"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 var rootCmd = &cobra.Command{
@@ -21,10 +23,21 @@ var play = &cobra.Command{
 	Short: "this plays the music",
 	Long: "heres the long description of it playing music",
 	Run: func(cmd *cobra.Command, args []string) {
-		player.PlayFile(args[0])
+		client.PlayFile(args[0])
 	},
 }
-
+var start = &cobra.Command{
+	Use: "start",
+	Short: "this plays the music",
+	Long: "heres the long description of it playing music",
+	Run: func(cmd *cobra.Command, args []string) {
+		p := tea.NewProgram(views.SelectInitialModel())
+		if _, err := p.Run(); err != nil {
+			fmt.Printf("Error: %v", err)
+			os.Exit(1)
+		}
+	},
+} 
   func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 	  fmt.Println(err)
@@ -35,4 +48,5 @@ var play = &cobra.Command{
   func init() {
 	rootCmd.AddCommand()
 	rootCmd.AddCommand(play)
+	rootCmd.AddCommand(start)
   }
