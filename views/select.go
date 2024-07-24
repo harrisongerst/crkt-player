@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gopxl/beep"
 	"github.com/gopxl/beep/mp3"
+	"github.com/gopxl/beep/wav"
 )
 
 type model struct {
@@ -18,7 +20,7 @@ type model struct {
 
 func SelectInitialModel() model {
 	return model{
-		choices: listFilesInDirectory(),
+		choices:  listFilesInDirectory(),
 		selected: make(map[int]struct{}),
 	}
 }
@@ -47,16 +49,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				delete(m.selected, m.cursor)
 			} else {
 				m.selected[m.cursor] = struct{}{}
-			}	
+			}
 			Queue.Add(createStreamer(m.choices[m.cursor]))
 		case "p", "g":
-				p := tea.NewProgram(PlayerInitialModel())
-				if _, err := p.Run(); err != nil {
+			p := tea.NewProgram(PlayerInitialModel())
+			if _, err := p.Run(); err != nil {
 				fmt.Printf("error running player: %v", err)
 				os.Exit(1)
 			}
 		}
-		
+
 	}
 
 	return m, nil
@@ -96,16 +98,28 @@ func listFilesInDirectory() []string {
 	return fileNames
 }
 
-//implement
+// implement
 func createStreamer(filePath string) beep.StreamSeekCloser {
 	f, err := os.Open("sounds/" + filePath)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	streamer, _, err := mp3.Decode(f)
-	if err != nil {
-		log.Fatal(err)
+	switch filepath.Ext(filePath) {
+	case ".mp3":
+		{
+			streamer, _, err := mp3.Decode(f)
+			if err != nil {
+				log.Fatal(err)
+			}
+			return streamer
+		}
+	case ".wav":
+		streamer, _, err := wav.Decode(f)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return streamer
 	}
-	return streamer
+	return nil
+
 }
